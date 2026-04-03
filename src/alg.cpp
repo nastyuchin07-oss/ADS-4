@@ -1,19 +1,76 @@
 // Copyright 2021 NNTU-CS
+#include "alg.h"
 
 int countPairs1(int *arr, int len, int value) {
     int count = 0;
-    for (int i = 0; i < len; ++i) {
-        for (int j = i + 1; j < len; ++j) {
+
+    for (int i = 0; i < len; i++) {
+        for (int j = i + 1; j < len; j++) {
             if (arr[i] + arr[j] == value) {
-                ++count;
+                count++;
             }
         }
     }
+
     return count;
 }
 
+
+
 int countPairs2(int *arr, int len, int value) {
     int count = 0;
+
+    for (int i = 0; i < len; i++) {
+        int target = value - arr[i];
+
+        int left = i + 1;
+        int right = len - 1;
+        int first = -1;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+
+            if (arr[mid] == target) {
+                first = mid;
+                right = mid - 1;
+            } else if (arr[mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        if (first != -1) {
+            int last = first;
+
+            left = first;
+            right = len - 1;
+
+            while (left <= right) {
+                int mid = (left + right) / 2;
+
+                if (arr[mid] == target) {
+                    last = mid;
+                    left = mid + 1;
+                } else if (arr[mid] < target) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+
+            count += (last - first + 1);
+        }
+    }
+
+    return count;
+}
+
+
+
+int countPairs3(int *arr, int len, int value) {
+    int count = 0;
+
     int left = 0;
     int right = len - 1;
 
@@ -21,67 +78,35 @@ int countPairs2(int *arr, int len, int value) {
         int sum = arr[left] + arr[right];
 
         if (sum == value) {
-            if (arr[left] == arr[right]) {
-                int n = right - left + 1;
-                count += n * (n - 1) / 2;
-                break;
-            } else {
-                int leftCount = 1;
-                while (left + 1 < right && arr[left] == arr[left + 1]) {
-                    ++leftCount;
-                    ++left;
+            if (arr[left] != arr[right]) {
+                int leftVal = arr[left];
+                int rightVal = arr[right];
+
+                int leftCount = 0;
+                int rightCount = 0;
+
+                while (left < len && arr[left] == leftVal) {
+                    left++;
+                    leftCount++;
                 }
-                int rightCount = 1;
-                while (right - 1 > left && arr[right] == arr[right - 1]) {
-                    ++rightCount;
-                    --right;
+
+                while (right >= 0 && arr[right] == rightVal) {
+                    right--;
+                    rightCount++;
                 }
+
                 count += leftCount * rightCount;
-                ++left;
-                --right;
+            } else {
+                int k = right - left + 1;
+                count += k * (k - 1) / 2;
+                break;
             }
         } else if (sum < value) {
-            ++left;
+            left++;
         } else {
-            --right;
+            right--;
         }
     }
-    return count;
-}
 
-int countPairs3(int *arr, int len, int value) {
-    int count = 0;
-
-    for (int i = 0; i < len; ++i) {
-        int target = value - arr[i];
-
-        int left = i + 1;
-        int right = len - 1;
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-            if (arr[mid] == target) {
-                ++count;
-
-                int k = mid - 1;
-                while (k > i && arr[k] == target) {
-                    ++count;
-                    --k;
-                }
-
-                k = mid + 1;
-                while (k < len && arr[k] == target) {
-                    ++count;
-                    ++k;
-                }
-
-                break;
-            } else if (arr[mid] < target) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
-        }
-    }
     return count;
 }
